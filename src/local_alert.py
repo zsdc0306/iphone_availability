@@ -1,3 +1,4 @@
+from Tkinter import *
 def showMessage(msgtype):
     text = ""
     if msgtype == MSG_ERROR:

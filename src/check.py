@@ -3,7 +3,7 @@ import time
 from smtplib import *
 import logging
 
-wait_time = 15
+wait_time = 30
 MSG_ERROR = 0
 MSG_PICK = 1
 MAX_TRY = 5
@@ -13,30 +13,37 @@ logging.basicConfig(filename=LOG_FILENAME,level=logging.INFO,
                     format = "%(levelname) -10s %(asctime)s %(module)s:%(lineno)s %(funcName)s %(message)s",
  )
 
-model_list={
-    "jet":"MN4D2LL%2FA",
-    "rose": "MN4C2LL%2FA"
+store_list = {
+    "rockinghampark": "R027"
+}
+model_list = {
+    "ip7jet":"MN4D2LL%2FA",
+    "ip7rose": "MN4C2LL%2FA",
+    "ipxsilver":"MQA92LL%2FA"
 }
 
 users={
-    "samuel":{
-        "email":"zhuoqin0@gmail.com",
-        "model":"jet"
-    },
+    # "samuel":{
+    #     "email": "zhuoqin0@gmail.com",
+    #     "model": "jet"
+    #     "store"
+    # },
     "zsd":{
-        "email":"zsdc0306@gmail.com",
-        "model":"rose"
+        "email": "zsdc0306@gmail.com",
+        "model": "rose",
+        "store": "rockinghampark"
     }
 }
 
-def set_url(model):
+
+def set_url(model, store):
     model_code = model_list[model]
-    url = "http://www.apple.com/shop/retail/pickup-message?parts.0="+model_code+ "&searchNearby=false&cppart=UNLOCKED%2FUS&store=R102"
+    url = "http://www.apple.com/shop/retail/pickup-message?parts.0=" + model_code+ "&searchNearby=false&cppart=UNLOCKED%2FUS&store=" + store_list[store]
     return url
 
 
-def get_pickdate(model):
-    url = set_url(model)
+def get_pickdate(model, store):
+    url = set_url(model, store)
     response = requests.get(url)
     if response.status_code != 200:
         logging.error("connection ERROR")
@@ -80,9 +87,10 @@ def main():
         model = users[user]["model"]
         print model
         email_addr = users[user]["email"]
+        store = users[user]["store"]
         while True:
             try:
-                pickup = get_pickdate(model)
+                pickup = get_pickdate(model, store)
                 if "Today" in pickup:
                     try:
                         logging.info("sending the email")
@@ -96,6 +104,7 @@ def main():
                 logging.error("waiting for solve")
                 time.sleep(30 * 60)
     time.sleep(wait_time * 60)
+
 
 main()
 
